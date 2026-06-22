@@ -4,10 +4,10 @@
         <OutputType>Exe</OutputType>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Akka.Streams" Version="1.5.69" />
-        <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.5.2" />
-        <PackageReference Include="NSubstitute" Version="5.3.0" />
-        <PackageReference Include="xunit.v3.mtp-v2" Version="3.2.2" />
+        <PackageReference Include="Akka.Streams" />
+        <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" />
+        <PackageReference Include="NSubstitute" />
+        <PackageReference Include="xunit.v3.mtp-v2" />
     </ItemGroup>
     <ItemGroup>
         <Using Include="Xunit" />

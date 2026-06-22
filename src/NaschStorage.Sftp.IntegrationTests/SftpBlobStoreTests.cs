@@ -106,4 +106,102 @@ public sealed class SftpBlobStoreTests : IClassFixture<SftpContainerFixture>, IA
 
         await Assert.ThrowsAsync<FileNotFoundException>(() => readResultTask);
     }
+
+    [Fact]
+    public async Task List_Returns_Files()
+    {
+        var data = "list test"u8.ToArray();
+        await Source.Single(new ReadOnlyMemory<byte>(data))
+            .RunWith(_store.Write("list/file1.txt"), _materializer);
+        await Source.Single(new ReadOnlyMemory<byte>(data))
+            .RunWith(_store.Write("list/file2.txt"), _materializer);
+
+        var items = await _store.List()
+            .RunWith(Sink.Seq<BlobItem>(), _materializer);
+
+        var paths = items.Select(i => i.Path).ToList();
+        Assert.Contains("list/file1.txt", paths);
+        Assert.Contains("list/file2.txt", paths);
+    }
+
+    [Fact]
+    public async Task List_WithPrefix_Filters()
+    {
+        var data = "prefix test"u8.ToArray();
+        await Source.Single(new ReadOnlyMemory<byte>(data))
+            .RunWith(_store.Write("alpha/file.txt"), _materializer);
+        await Source.Single(new ReadOnlyMemory<byte>(data))
+            .RunWith(_store.Write("beta/file.txt"), _materializer);
+
+        var alphaItems = await _store.List(new ListOptions { Prefix = "alpha/" })
+            .RunWith(Sink.Seq<BlobItem>(), _materializer);
+
+        Assert.All(alphaItems, item => Assert.StartsWith("alpha/", item.Path));
+        Assert.DoesNotContain(alphaItems, item => item.Path.StartsWith("beta/", StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public async Task List_Recursive_IncludesSubdirectories()
+    {
+        var data = "recursive test"u8.ToArray();
+        await Source.Single(new ReadOnlyMemory<byte>(data))
+            .RunWith(_store.Write("root/file.txt"), _materializer);
+        await Source.Single(new ReadOnlyMemory<byte>(data))
+            .RunWith(_store.Write("root/sub/nested.txt"), _materializer);
+
+        var recursiveItems = await _store.List(new ListOptions { Prefix = "root/", Recursive = true })
+            .RunWith(Sink.Seq<BlobItem>(), _materializer);
+
+        var paths = recursiveItems.Select(i => i.Path).ToList();
+        Assert.Contains("root/file.txt", paths);
+        Assert.Contains("root/sub/nested.txt", paths);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_Removes_File()
+    {
+        var data = "delete me"u8.ToArray();
+        await Source.Single(new ReadOnlyMemory<byte>(data))
+            .RunWith(_store.Write("delete/file.txt"), _materializer);
+
+        var existsBefore = await _store.ExistsAsync(["delete/file.txt"], TestContext.Current.CancellationToken);
+        Assert.True(existsBefore.First());
+
+        await _store.DeleteAsync(["delete/file.txt"], TestContext.Current.CancellationToken);
+
+        var existsAfter = await _store.ExistsAsync(["delete/file.txt"], TestContext.Current.CancellationToken);
+        Assert.False(existsAfter.First());
+    }
+
+    [Fact]
+    public async Task ExistsAsync_Returns_Correct_Results()
+    {
+        var data = "exists check"u8.ToArray();
+        await Source.Single(new ReadOnlyMemory<byte>(data))
+            .RunWith(_store.Write("exists/file.txt"), _materializer);
+
+        var results = await _store.ExistsAsync(
+            ["exists/file.txt", "nonexistent/file.txt"],
+            TestContext.Current.CancellationToken);
+
+        var list = results.ToList();
+        Assert.True(list[0]);
+        Assert.False(list[1]);
+    }
+
+    [Fact]
+    public async Task GetBlobsAsync_Returns_FileInfo()
+    {
+        var data = new byte[42];
+        await Source.Single(new ReadOnlyMemory<byte>(data))
+            .RunWith(_store.Write("meta/file.txt"), _materializer);
+
+        var blobs = await _store.GetBlobsAsync(["meta/file.txt"], TestContext.Current.CancellationToken);
+
+        Assert.Single(blobs);
+        var blob = blobs.First();
+        Assert.Equal("meta/file.txt", blob.Path);
+        Assert.Equal(42L, blob.Size);
+        Assert.Equal(BlobKind.File, blob.Kind);
+    }
 }

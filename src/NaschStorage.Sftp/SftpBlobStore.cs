@@ -2,6 +2,7 @@ using Akka;
 using Akka.IO;
 using Akka.Streams.Dsl;
 using Renci.SshNet;
+using Renci.SshNet.Sftp;
 
 namespace NaschStorage.Sftp;
 
@@ -150,22 +151,110 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
 
     public Source<BlobItem, NotUsed> List(ListOptions? options = null)
     {
-        throw new NotImplementedException();
+        EnsureConnected();
+
+        var basePath = _options.BasePath?.TrimEnd('/') ?? "";
+        var prefix = options?.Prefix;
+        var recursive = options?.Recursive ?? false;
+
+        var searchPath = string.IsNullOrEmpty(basePath) ? "/" : basePath;
+        if (prefix is not null)
+        {
+            var fullPrefix = string.IsNullOrEmpty(basePath)
+                ? $"/{prefix.TrimStart('/')}"
+                : $"{basePath}/{prefix.TrimStart('/')}";
+
+            if (_client.Exists(fullPrefix) && _client.GetAttributes(fullPrefix).IsDirectory)
+                searchPath = fullPrefix;
+            else
+            {
+                var parent = GetParentDirectory(fullPrefix);
+                if (parent is not null && _client.Exists(parent))
+                    searchPath = parent;
+            }
+        }
+
+        IEnumerable<BlobItem> items = ListRecursive(searchPath)
+            .Where(item => item.IsRegularFile || (recursive && item.IsDirectory))
+            .Select(item => new BlobItem
+            {
+                Path = ToBlobPath(item.FullName),
+                Kind = item.IsDirectory ? BlobKind.Folder : BlobKind.File,
+                Size = item.IsDirectory ? null : item.Attributes.Size,
+                ModifiedOn = new DateTimeOffset(item.LastWriteTime.ToUniversalTime(), TimeSpan.Zero),
+            });
+
+        if (prefix is not null)
+            items = items.Where(i => i.Path.StartsWith(prefix, StringComparison.Ordinal));
+
+        if (options?.MaxResults is { } max)
+            items = items.Take(max);
+
+        return Source.From(items.ToList());
+    }
+
+    private IEnumerable<ISftpFile> ListRecursive(string path)
+    {
+        foreach (var item in _client.ListDirectory(path))
+        {
+            if (item.Name is "." or "..") continue;
+            yield return item;
+            if (item.IsDirectory)
+            {
+                foreach (var child in ListRecursive(item.FullName))
+                    yield return child;
+            }
+        }
     }
 
     public Task DeleteAsync(IReadOnlyCollection<string> paths, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        EnsureConnected();
+        foreach (var path in paths)
+        {
+            var fullPath = ToFullPath(path);
+            if (!_client.Exists(fullPath)) continue;
+
+            var attrs = _client.GetAttributes(fullPath);
+            if (attrs.IsDirectory)
+                _client.DeleteDirectory(fullPath);
+            else
+                _client.DeleteFile(fullPath);
+        }
+        return Task.CompletedTask;
     }
 
     public Task<IReadOnlyCollection<bool>> ExistsAsync(IReadOnlyCollection<string> paths, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        EnsureConnected();
+        var results = paths
+            .Select(p => _client.Exists(ToFullPath(p)))
+            .ToList();
+
+        return Task.FromResult<IReadOnlyCollection<bool>>(results);
     }
 
     public Task<IReadOnlyCollection<BlobItem>> GetBlobsAsync(IReadOnlyCollection<string> paths, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        EnsureConnected();
+        var results = paths.Select(path =>
+        {
+            var fullPath = ToFullPath(path);
+            if (!_client.Exists(fullPath)) return null;
+
+            var attrs = _client.GetAttributes(fullPath);
+            return new BlobItem
+            {
+                Path = path,
+                Kind = attrs.IsDirectory ? BlobKind.Folder : BlobKind.File,
+                Size = attrs.IsDirectory ? null : attrs.Size,
+                ModifiedOn = new DateTimeOffset(attrs.LastWriteTime.ToUniversalTime(), TimeSpan.Zero),
+            };
+        })
+        .OfType<BlobItem>()
+        .ToList();
+
+        return Task.FromResult<IReadOnlyCollection<BlobItem>>(results);
     }
 
     public Task SetBlobsAsync(IReadOnlyCollection<BlobItem> blobs, CancellationToken ct = default)

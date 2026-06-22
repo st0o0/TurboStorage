@@ -1,4 +1,4 @@
-namespace TurboStorage.Virtual;
+namespace NaschStorage.Virtual;
 
 public sealed class VirtualStorageBuilder
 {

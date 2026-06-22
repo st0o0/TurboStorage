@@ -1,6 +1,0 @@
-<Solution>
-    <Project Path="TurboStorage\TurboStorage.csproj" />
-    <Project Path="TurboStorage.UnitTests\TurboStorage.UnitTests.csproj" />
-    <Project Path="TurboStorage.IntegrationTests\TurboStorage.IntegrationTests.csproj" />
-    <Project Path="TurboStorage.Benchmarks\TurboStorage.Benchmarks.csproj" />
-</Solution>

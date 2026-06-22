@@ -1,7 +1,7 @@
 using Akka;
 using Akka.Streams.Dsl;
 
-namespace TurboStorage;
+namespace NaschStorage;
 
 public interface IBlobStore
 {

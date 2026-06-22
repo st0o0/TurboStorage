@@ -6,7 +6,7 @@ on:
 
 env:
   GLOBAL_JSON_PATH: "./src/global.json"
-  SOLUTION_PATH: "./src/TurboStorage.slnx"
+  SOLUTION_PATH: "./src/NaschStorage.slnx"
   PACKAGE_OUTPUT: "./packages"
 
 permissions:
@@ -67,12 +67,12 @@ jobs:
 
       - name: Pack
         run: >
-          dotnet pack src/TurboStorage/TurboStorage.csproj
+          dotnet pack src/NaschStorage/NaschStorage.csproj
           --configuration Release
           --no-build
           --output ${{ env.PACKAGE_OUTPUT }}
           /p:PackageVersion=${{ needs.release-please.outputs.version }}
-          /p:PackageReleaseNotes="https://github.com/st0o0/TurboStorage/releases/tag/${{ needs.release-please.outputs.tag_name }}"
+          /p:PackageReleaseNotes="https://github.com/st0o0/NaschStorage/releases/tag/${{ needs.release-please.outputs.tag_name }}"
 
       - name: Upload NuGet artifact
         uses: actions/upload-artifact@v7

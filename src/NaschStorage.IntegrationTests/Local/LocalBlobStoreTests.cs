@@ -1,9 +1,9 @@
 using Akka.Actor;
 using Akka.Streams;
 using Akka.Streams.Dsl;
-using TurboStorage.Local;
+using NaschStorage.Local;
 
-namespace TurboStorage.IntegrationTests.Local;
+namespace NaschStorage.IntegrationTests.Local;
 
 public sealed class LocalBlobStoreTests : IAsyncLifetime
 {
@@ -14,7 +14,7 @@ public sealed class LocalBlobStoreTests : IAsyncLifetime
 
     public ValueTask InitializeAsync()
     {
-        _tempDir = Path.Combine(Path.GetTempPath(), $"turbostorage-test-{Guid.NewGuid():N}");
+        _tempDir = Path.Combine(Path.GetTempPath(), $"naschstorage-test-{Guid.NewGuid():N}");
         Directory.CreateDirectory(_tempDir);
         _system = ActorSystem.Create("test");
         _materializer = _system.Materializer();
@@ -34,7 +34,7 @@ public sealed class LocalBlobStoreTests : IAsyncLifetime
     [Fact]
     public async Task Write_And_Read_RoundTrips()
     {
-        var data = "Hello, TurboStorage!"u8.ToArray();
+        var data = "Hello, NaschStorage!"u8.ToArray();
         var writeSink = _store.Write("test/file.txt");
         var writeResult = await Source.Single(new ReadOnlyMemory<byte>(data)).RunWith(writeSink, _materializer);
 

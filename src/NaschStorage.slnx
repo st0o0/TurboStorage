@@ -1,5 +1,7 @@
 <Solution>
     <Project Path="NaschStorage\NaschStorage.csproj" />
+    <Project Path="NaschStorage.Sftp.IntegrationTests/NaschStorage.Sftp.IntegrationTests.csproj" />
+    <Project Path="NaschStorage.Sftp/NaschStorage.Sftp.csproj" />
     <Project Path="NaschStorage.UnitTests\NaschStorage.UnitTests.csproj" />
     <Project Path="NaschStorage.Ftp.IntegrationTests/NaschStorage.Ftp.IntegrationTests.csproj" />
     <Project Path="NaschStorage.Ftp/NaschStorage.Ftp.csproj" />

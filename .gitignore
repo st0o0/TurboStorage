@@ -330,3 +330,5 @@ ASALocalRun/
 .Rproj.user
 
 **.env
+superpowers/
+.claude/

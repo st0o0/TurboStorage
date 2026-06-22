@@ -1,4 +1,4 @@
-# TurboStorage
+# NaschStorage
 
 High-performance blob storage abstraction for .NET built on Akka.Streams.
 
@@ -6,8 +6,8 @@ High-performance blob storage abstraction for .NET built on Akka.Streams.
 
 ```bash
 cd src
-dotnet restore TurboStorage.slnx
-dotnet build TurboStorage.slnx --configuration Release
+dotnet restore NaschStorage.slnx
+dotnet build NaschStorage.slnx --configuration Release
 dotnet test --configuration Release --no-build --solution *.slnx
 ```
 
@@ -15,7 +15,7 @@ dotnet test --configuration Release --no-build --solution *.slnx
 
 ```bash
 cd src
-dotnet run --project TurboStorage.Benchmarks/TurboStorage.Benchmarks.csproj --configuration Release
+dotnet run --project NaschStorage.Benchmarks/NaschStorage.Benchmarks.csproj --configuration Release
 ```
 
 ## Architecture

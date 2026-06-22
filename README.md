@@ -1,12 +1,12 @@
-# TurboStorage
+# NaschStorage
 
 <div align="center">
 
-<img alt="TurboStorage logo" height="128" src="https://raw.githubusercontent.com/st0o0/TurboStorage/refs/heads/main/docs/logo/logo.svg" width="128"/>
+<img alt="NaschStorage logo" height="128" src="https://raw.githubusercontent.com/st0o0/NaschStorage/refs/heads/main/docs/logo/logo.svg" width="128"/>
 
 **A high-performance blob storage abstraction for .NET built on [Akka.Streams](https://getakka.net/)**
 
-[![License](https://img.shields.io/github/license/st0o0/TurboStorage?style=flat-square)](LICENSE)
+[![License](https://img.shields.io/github/license/st0o0/NaschStorage?style=flat-square)](LICENSE)
 [![Dotnet](https://img.shields.io/badge/dotnet-10.0-5027d5?style=flat-square)](https://dotnet.microsoft.com)
 
 </div>
@@ -38,7 +38,7 @@
 ## Installation
 
 ```bash
-dotnet add package TurboStorage
+dotnet add package NaschStorage
 ```
 
 **Requirements:** .NET 10.0 or higher
@@ -51,7 +51,7 @@ dotnet add package TurboStorage
 using Akka.Actor;
 using Akka.Streams;
 using Akka.Streams.Dsl;
-using TurboStorage.Local;
+using NaschStorage.Local;
 
 using var system = ActorSystem.Create("my-app");
 var materializer = system.Materializer();
@@ -77,7 +77,7 @@ Console.WriteLine($"Read {metadata.Size} bytes from {metadata.Path}");
 ### In-Memory Store (Testing/Caching)
 
 ```csharp
-using TurboStorage.InMemory;
+using NaschStorage.InMemory;
 
 var store = new InMemoryBlobStore();
 
@@ -88,7 +88,7 @@ await Source.Single(new ReadOnlyMemory<byte>("cached data"u8.ToArray()))
 ### Virtual Storage (Multi-Provider)
 
 ```csharp
-using TurboStorage.Virtual;
+using NaschStorage.Virtual;
 
 var store = new VirtualStorageBuilder()
     .Mount("/local", new LocalBlobStore("/data"))
@@ -112,7 +112,7 @@ var allBlobs = await store.List()
 
 ### Streaming with Backpressure
 
-TurboStorage uses Akka.Streams for all data transfer, providing automatic backpressure:
+NaschStorage uses Akka.Streams for all data transfer, providing automatic backpressure:
 
 ```csharp
 // Read returns a Source — compose with any Akka.Streams operator
@@ -168,20 +168,20 @@ await Source.Single(new ReadOnlyMemory<byte>("line 2\n"u8.ToArray()))
 
 | Package | Providers | Description |
 |---|---|---|
-| `TurboStorage` | `LocalBlobStore` | Filesystem-backed, maps paths to files relative to a root directory |
-| `TurboStorage` | `InMemoryBlobStore` | In-memory store using `ConcurrentDictionary`, ideal for tests and caching |
-| `TurboStorage` | `VirtualBlobStore` | Composite store routing by path prefix to mounted sub-stores |
+| `NaschStorage` | `LocalBlobStore` | Filesystem-backed, maps paths to files relative to a root directory |
+| `NaschStorage` | `InMemoryBlobStore` | In-memory store using `ConcurrentDictionary`, ideal for tests and caching |
+| `NaschStorage` | `VirtualBlobStore` | Composite store routing by path prefix to mounted sub-stores |
 
 ### Future Providers
 
 | Package | Provider |
 |---|---|
-| `TurboStorage.AWS` | Amazon S3 (+ MinIO, Wasabi, DigitalOcean Spaces) |
-| `TurboStorage.Azure.Blobs` | Azure Blob Storage |
-| `TurboStorage.Azure.Files` | Azure File Shares |
-| `TurboStorage.GCP` | Google Cloud Storage |
-| `TurboStorage.FTP` | FTP/FTPS |
-| `TurboStorage.SFTP` | SFTP |
+| `NaschStorage.AWS` | Amazon S3 (+ MinIO, Wasabi, DigitalOcean Spaces) |
+| `NaschStorage.Azure.Blobs` | Azure Blob Storage |
+| `NaschStorage.Azure.Files` | Azure File Shares |
+| `NaschStorage.GCP` | Google Cloud Storage |
+| `NaschStorage.FTP` | FTP/FTPS |
+| `NaschStorage.SFTP` | SFTP |
 
 ## Advanced Usage
 
@@ -244,11 +244,11 @@ await Source.From(largeChunks)
 
 ## Inspiration
 
-TurboStorage is inspired by [FluentStorage](https://github.com/robinrodricks/FluentStorage), a polycloud storage abstraction for .NET.
+NaschStorage is inspired by [FluentStorage](https://github.com/robinrodricks/FluentStorage), a polycloud storage abstraction for .NET.
 
 ### What's Different?
 
-While FluentStorage provides a solid foundation, TurboStorage takes a different approach:
+While FluentStorage provides a solid foundation, NaschStorage takes a different approach:
 
 - **Akka.Streams** instead of .NET `Stream` — full backpressure and composable pipelines
 - **`ReadOnlyMemory<byte>`** instead of `byte[]` — zero-copy where possible
@@ -280,10 +280,10 @@ Contributions are welcome! This library grows with the community's needs.
 ### Development Setup
 
 ```bash
-git clone https://github.com/st0o0/TurboStorage.git
-cd TurboStorage/src
-dotnet restore TurboStorage.slnx
-dotnet build TurboStorage.slnx
+git clone https://github.com/st0o0/NaschStorage.git
+cd NaschStorage/src
+dotnet restore NaschStorage.slnx
+dotnet build NaschStorage.slnx
 dotnet test --solution *.slnx
 ```
 
@@ -297,6 +297,6 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 **Built with Akka.Streams for high-performance .NET storage**
 
-[Report Bug](https://github.com/st0o0/TurboStorage/issues) · [Request Feature](https://github.com/st0o0/TurboStorage/issues)
+[Report Bug](https://github.com/st0o0/NaschStorage/issues) · [Request Feature](https://github.com/st0o0/NaschStorage/issues)
 
 </div>

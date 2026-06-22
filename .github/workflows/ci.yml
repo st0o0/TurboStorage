@@ -20,7 +20,7 @@ concurrency:
 
 env:
   GLOBAL_JSON_PATH: "./src/global.json"
-  SOLUTION_PATH: "./src/TurboStorage.slnx"
+  SOLUTION_PATH: "./src/NaschStorage.slnx"
   TEST_OUTPUT_DIRECTORY: "${{ github.workspace }}/testresults"
   COVERAGE_REPORT_DIRECTORY: "./coveragereport"
 

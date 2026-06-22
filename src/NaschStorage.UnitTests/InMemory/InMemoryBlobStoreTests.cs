@@ -1,9 +1,9 @@
 using Akka.Actor;
 using Akka.Streams;
 using Akka.Streams.Dsl;
-using TurboStorage.InMemory;
+using NaschStorage.InMemory;
 
-namespace TurboStorage.UnitTests.InMemory;
+namespace NaschStorage.UnitTests.InMemory;
 
 public sealed class InMemoryBlobStoreTests : IAsyncLifetime
 {
@@ -24,7 +24,7 @@ public sealed class InMemoryBlobStoreTests : IAsyncLifetime
     [Fact]
     public async Task Write_And_Read_RoundTrips()
     {
-        var data = "Hello, TurboStorage!"u8.ToArray();
+        var data = "Hello, NaschStorage!"u8.ToArray();
         var writeSource = Source.Single(new ReadOnlyMemory<byte>(data));
         var writeSink = _store.Write("test/file.txt");
 

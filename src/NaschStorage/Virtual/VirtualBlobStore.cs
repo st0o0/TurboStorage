@@ -1,7 +1,7 @@
 using Akka;
 using Akka.Streams.Dsl;
 
-namespace TurboStorage.Virtual;
+namespace NaschStorage.Virtual;
 
 public sealed class VirtualBlobStore : IBlobStore
 {

@@ -2,9 +2,9 @@ using Akka.Actor;
 using Akka.Streams;
 using Akka.Streams.Dsl;
 using BenchmarkDotNet.Attributes;
-using TurboStorage.InMemory;
+using NaschStorage.InMemory;
 
-namespace TurboStorage.Benchmarks;
+namespace NaschStorage.Benchmarks;
 
 [MemoryDiagnoser]
 public class InMemoryBlobStoreBenchmarks

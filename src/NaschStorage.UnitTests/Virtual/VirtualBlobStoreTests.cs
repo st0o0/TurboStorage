@@ -1,10 +1,10 @@
 using Akka.Actor;
 using Akka.Streams;
 using Akka.Streams.Dsl;
-using TurboStorage.InMemory;
-using TurboStorage.Virtual;
+using NaschStorage.InMemory;
+using NaschStorage.Virtual;
 
-namespace TurboStorage.UnitTests.Virtual;
+namespace NaschStorage.UnitTests.Virtual;
 
 public sealed class VirtualBlobStoreTests : IAsyncLifetime
 {

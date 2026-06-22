@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <Authors>st0o0</Authors>
-        <Title>TurboStorage</Title>
+        <Title>NaschStorage</Title>
         <PackageTags>Storage;BlobStorage;Akka;Akka.Streams;Streaming</PackageTags>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/st0o0/TurboStorage</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/st0o0/TurboStorage.git</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/st0o0/NaschStorage</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/st0o0/NaschStorage.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <Copyright>Copyright (c) 2026-$([System.DateTime]::Now.Year) st0o0</Copyright>
     </PropertyGroup>
@@ -20,9 +20,9 @@
         <EmbedUntrackedSources>true</EmbedUntrackedSources>
     </PropertyGroup>
     <ItemGroup>
-        <InternalsVisibleTo Include="TurboStorage.UnitTests" />
-        <InternalsVisibleTo Include="TurboStorage.IntegrationTests" />
-        <InternalsVisibleTo Include="TurboStorage.Benchmarks" />
+        <InternalsVisibleTo Include="NaschStorage.UnitTests" />
+        <InternalsVisibleTo Include="NaschStorage.IntegrationTests" />
+        <InternalsVisibleTo Include="NaschStorage.Benchmarks" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Akka.Streams" />

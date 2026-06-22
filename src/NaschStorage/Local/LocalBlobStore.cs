@@ -2,7 +2,7 @@ using Akka;
 using Akka.IO;
 using Akka.Streams.Dsl;
 
-namespace TurboStorage.Local;
+namespace NaschStorage.Local;
 
 public sealed class LocalBlobStore : IBlobStore
 {

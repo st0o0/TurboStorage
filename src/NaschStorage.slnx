@@ -1,0 +1,6 @@
+<Solution>
+    <Project Path="NaschStorage\NaschStorage.csproj" />
+    <Project Path="NaschStorage.UnitTests\NaschStorage.UnitTests.csproj" />
+    <Project Path="NaschStorage.IntegrationTests\NaschStorage.IntegrationTests.csproj" />
+    <Project Path="NaschStorage.Benchmarks\NaschStorage.Benchmarks.csproj" />
+</Solution>

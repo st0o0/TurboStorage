@@ -2,7 +2,7 @@ using System.Collections.Concurrent;
 using Akka;
 using Akka.Streams.Dsl;
 
-namespace TurboStorage.InMemory;
+namespace NaschStorage.InMemory;
 
 public sealed class InMemoryBlobStore : IBlobStore
 {

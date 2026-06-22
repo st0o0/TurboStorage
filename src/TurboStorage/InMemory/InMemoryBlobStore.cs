@@ -17,14 +17,16 @@ public sealed class InMemoryBlobStore : IBlobStore
                 .MapMaterializedValue(_ => Task.FromException<BlobReadResult>(new FileNotFoundException($"Blob not found: {path}")));
         }
 
+        _metadata.TryGetValue(path, out var meta);
+
         var result = new BlobReadResult
         {
             Path = path,
             Size = bytes.Length,
-            ContentType = _metadata.TryGetValue(path, out var meta) ? meta.ContentType : null,
-            ETag = _metadata.TryGetValue(path, out var meta2) ? meta2.ETag : null,
-            ModifiedOn = _metadata.TryGetValue(path, out var meta3) ? meta3.ModifiedOn : null,
-            Properties = _metadata.TryGetValue(path, out var meta4) ? meta4.Properties : null,
+            ContentType = meta?.ContentType,
+            ETag = meta?.ETag,
+            ModifiedOn = meta?.ModifiedOn,
+            Properties = meta?.Properties,
         };
 
         return Source.Single(new ReadOnlyMemory<byte>(bytes))

@@ -1,0 +1,79 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+      - LICENSE
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+      - LICENSE
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GLOBAL_JSON_PATH: "./src/global.json"
+  SOLUTION_PATH: "./src/TurboStorage.slnx"
+  TEST_OUTPUT_DIRECTORY: "${{ github.workspace }}/testresults"
+  COVERAGE_REPORT_DIRECTORY: "./coveragereport"
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v5
+        with:
+          global-json-file: ${{ env.GLOBAL_JSON_PATH }}
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      - name: Restore tools
+        run: dotnet tool restore
+
+      - name: Run Slopwatch
+        run: dotnet tool run slopwatch analyze --fail-on error
+
+      - name: Restore
+        run: dotnet restore --locked-mode ${{ env.SOLUTION_PATH }}
+
+      - name: Build
+        run: >
+          dotnet build ${{ env.SOLUTION_PATH }}
+          --configuration Release
+          --no-restore
+
+      - name: Test
+        working-directory: ./src
+        run: >
+          dotnet test
+          --configuration Release
+          --no-build
+          --coverage
+          --coverage-output-format cobertura
+          --results-directory ${{ env.TEST_OUTPUT_DIRECTORY }}
+          --solution *.slnx
+
+      - name: Report Code Coverage
+        if: always()
+        uses: danielpalme/ReportGenerator-GitHub-Action@5
+        with:
+          reports: "${{ env.TEST_OUTPUT_DIRECTORY }}/*cobertura.xml"
+          targetdir: "${{ env.COVERAGE_REPORT_DIRECTORY }}"
+          reporttypes: "MarkdownSummaryGithub"
+
+      - name: Add Coverage Summary to Job Summary
+        if: always()
+        run: cat ${{ env.COVERAGE_REPORT_DIRECTORY }}/SummaryGithub.md >> $GITHUB_STEP_SUMMARY

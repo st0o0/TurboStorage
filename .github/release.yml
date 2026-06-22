@@ -1,4 +1,3 @@
-# .github/release.yml
 changelog:
   exclude:
     labels:
@@ -6,31 +5,14 @@ changelog:
       - documentation
     authors:
       - dependabot[bot]
-  
   categories:
-    - title: "🚨 Breaking Changes"
-      labels:
-        - "Semver-Major"
-        - "breaking-change"
-        
-    - title: "🎉 New Features"
-      labels:
-        - "Semver-Minor"
-        - enhancement
-        - feature
-        
-    - title: "🐛 Bug Fixes"
-      labels:
-        - "Semver-Patch"
-        - bug
-        - fix
-        
-    - title: "📦 Dependencies"
-      labels:
-        - dependencies
-        - nuget
-        - github-actions
-        
-    - title: "🔧 Other Changes"
-      labels:
-        - "*"
+    - title: "Breaking Changes"
+      labels: ["Semver-Major", "breaking-change"]
+    - title: "New Features"
+      labels: ["Semver-Minor", "enhancement", "feature"]
+    - title: "Bug Fixes"
+      labels: ["Semver-Patch", "bug", "fix"]
+    - title: "Dependencies"
+      labels: ["dependencies", "nuget", "github-actions"]
+    - title: "Other Changes"
+      labels: ["*"]

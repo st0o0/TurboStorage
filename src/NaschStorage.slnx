@@ -2,5 +2,7 @@
     <Project Path="NaschStorage\NaschStorage.csproj" />
     <Project Path="NaschStorage.UnitTests\NaschStorage.UnitTests.csproj" />
     <Project Path="NaschStorage.IntegrationTests\NaschStorage.IntegrationTests.csproj" />
+    <Project Path="NaschStorage.Azure.Blobs.IntegrationTests/NaschStorage.Azure.Blobs.IntegrationTests.csproj" />
+    <Project Path="NaschStorage.Azure.Blobs/NaschStorage.Azure.Blobs.csproj" />
     <Project Path="NaschStorage.Benchmarks\NaschStorage.Benchmarks.csproj" />
 </Solution>

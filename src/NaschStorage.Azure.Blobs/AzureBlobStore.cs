@@ -23,7 +23,11 @@ public sealed class AzureBlobStore : IBlobStore
 
     private void EnsureContainer()
     {
-        if (_containerEnsured || !_createIfNotExists) return;
+        if (_containerEnsured || !_createIfNotExists)
+        {
+            return;
+        }
+
         _containerClient.CreateIfNotExists();
         _containerEnsured = true;
     }
@@ -50,11 +54,15 @@ public sealed class AzureBlobStore : IBlobStore
             .MapMaterializedValue(ioTask => ioTask.ContinueWith<BlobReadResult>(t =>
             {
                 if (t.IsFaulted)
+                {
                     ExceptionDispatchHelper.Rethrow(t.Exception!);
+                }
 
                 var ioResult = t.Result;
                 if (!ioResult.WasSuccessful)
+                {
                     throw ioResult.Error;
+                }
 
                 return new BlobReadResult
                 {
@@ -116,11 +124,15 @@ public sealed class AzureBlobStore : IBlobStore
             .MapMaterializedValue(ioTask => ioTask.ContinueWith<BlobWriteResult>(t =>
             {
                 if (t.IsFaulted)
+                {
                     ExceptionDispatchHelper.Rethrow(t.Exception!);
+                }
 
                 var ioResult = t.Result;
                 if (!ioResult.WasSuccessful)
+                {
                     throw ioResult.Error;
+                }
 
                 var props = _containerClient.GetBlobClient(path).GetProperties().Value;
                 return new BlobWriteResult
@@ -154,7 +166,9 @@ public sealed class AzureBlobStore : IBlobStore
         });
 
         if (options?.MaxResults is { } max)
+        {
             items = items.Take(max);
+        }
 
         return Source.From(items.ToList());
     }

@@ -21,21 +21,28 @@ public sealed class FtpBlobStore : IBlobStore, IDisposable
     private void EnsureConnected()
     {
         if (!_client.IsConnected)
+        {
             _client.AutoConnect();
+        }
     }
 
     private string ToFullPath(string blobPath)
     {
         var normalized = blobPath.TrimStart('/');
         if (_options.BasePath is { } basePath)
+        {
             return $"{basePath.TrimEnd('/')}/{normalized}";
+        }
+
         return $"/{normalized}";
     }
 
     private string ToBlobPath(string fullPath)
     {
         if (_options.BasePath is not { } basePath)
+        {
             return fullPath.TrimStart('/');
+        }
 
         var prefix = basePath.TrimEnd('/') + "/";
         return fullPath.StartsWith(prefix, StringComparison.Ordinal)
@@ -68,11 +75,15 @@ public sealed class FtpBlobStore : IBlobStore, IDisposable
             .MapMaterializedValue(ioTask => ioTask.ContinueWith<BlobReadResult>(t =>
             {
                 if (t.IsFaulted)
+                {
                     ExceptionDispatchHelper.Rethrow(t.Exception!);
+                }
 
                 var ioResult = t.Result;
                 if (!ioResult.WasSuccessful)
+                {
                     throw ioResult.Error;
+                }
 
                 return new BlobReadResult
                 {
@@ -92,7 +103,9 @@ public sealed class FtpBlobStore : IBlobStore, IDisposable
 
         var parentDir = GetParentDirectory(fullPath);
         if (parentDir is not null)
+        {
             _client.CreateDirectory(parentDir, true);
+        }
 
         return Flow.Create<ReadOnlyMemory<byte>>()
             .Select(mem => ByteString.FromBytes(mem.ToArray()))
@@ -103,11 +116,15 @@ public sealed class FtpBlobStore : IBlobStore, IDisposable
             .MapMaterializedValue(ioTask => ioTask.ContinueWith<BlobWriteResult>(t =>
             {
                 if (t.IsFaulted)
+                {
                     ExceptionDispatchHelper.Rethrow(t.Exception!);
+                }
 
                 var ioResult = t.Result;
                 if (!ioResult.WasSuccessful)
+                {
                     throw ioResult.Error;
+                }
 
                 EnsureConnected();
                 var fileInfo = _client.GetObjectInfo(fullPath);
@@ -142,7 +159,9 @@ public sealed class FtpBlobStore : IBlobStore, IDisposable
             {
                 var parent = GetParentDirectory(fullPrefix);
                 if (parent is not null && _client.DirectoryExists(parent))
+                {
                     searchPath = parent;
+                }
             }
         }
 
@@ -156,7 +175,7 @@ public sealed class FtpBlobStore : IBlobStore, IDisposable
             listing = [];
         }
 
-        IEnumerable<BlobItem> items = listing
+        var items = listing
             .Where(item => item.Type == FtpObjectType.File || (recursive && item.Type == FtpObjectType.Directory))
             .Select(item => new BlobItem
             {
@@ -169,10 +188,14 @@ public sealed class FtpBlobStore : IBlobStore, IDisposable
             });
 
         if (prefix is not null)
+        {
             items = items.Where(i => i.Path.StartsWith(prefix, StringComparison.Ordinal));
+        }
 
         if (options?.MaxResults is { } max)
+        {
             items = items.Take(max);
+        }
 
         return Source.From(items.ToList());
     }
@@ -184,9 +207,13 @@ public sealed class FtpBlobStore : IBlobStore, IDisposable
         {
             var fullPath = ToFullPath(path);
             if (_client.FileExists(fullPath))
+            {
                 _client.DeleteFile(fullPath);
+            }
             else if (_client.DirectoryExists(fullPath))
+            {
                 _client.DeleteDirectory(fullPath);
+            }
         }
         return Task.CompletedTask;
     }
@@ -212,7 +239,10 @@ public sealed class FtpBlobStore : IBlobStore, IDisposable
         {
             var fullPath = ToFullPath(path);
             var info = _client.GetObjectInfo(fullPath);
-            if (info is null) return null;
+            if (info is null)
+            {
+                return null;
+            }
 
             return new BlobItem
             {

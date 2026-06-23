@@ -27,7 +27,9 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
             };
 
             if (options.Password is { } password)
+            {
                 authMethods.Add(new PasswordAuthenticationMethod(options.Username, password));
+            }
 
             var connInfo = new ConnectionInfo(options.Host, options.Port, options.Username, authMethods.ToArray());
             _client = new SftpClient(connInfo);
@@ -41,21 +43,28 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
     private void EnsureConnected()
     {
         if (!_client.IsConnected)
+        {
             _client.Connect();
+        }
     }
 
     private string ToFullPath(string blobPath)
     {
         var normalized = blobPath.TrimStart('/');
         if (_options.BasePath is { } basePath)
+        {
             return $"{basePath.TrimEnd('/')}/{normalized}";
+        }
+
         return $"/{normalized}";
     }
 
     private string ToBlobPath(string fullPath)
     {
         if (_options.BasePath is not { } basePath)
+        {
             return fullPath.TrimStart('/');
+        }
 
         var prefix = basePath.TrimEnd('/') + "/";
         return fullPath.StartsWith(prefix, StringComparison.Ordinal)
@@ -65,11 +74,16 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
 
     private void EnsureDirectoryExists(string path)
     {
-        if (_client.Exists(path)) return;
+        if (_client.Exists(path))
+        {
+            return;
+        }
 
         var parent = GetParentDirectory(path);
         if (parent is not null)
+        {
             EnsureDirectoryExists(parent);
+        }
 
         _client.CreateDirectory(path);
     }
@@ -99,11 +113,15 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
             .MapMaterializedValue(ioTask => ioTask.ContinueWith<BlobReadResult>(t =>
             {
                 if (t.IsFaulted)
+                {
                     ExceptionDispatchHelper.Rethrow(t.Exception!);
+                }
 
                 var ioResult = t.Result;
                 if (!ioResult.WasSuccessful)
+                {
                     throw ioResult.Error;
+                }
 
                 return new BlobReadResult
                 {
@@ -121,7 +139,9 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
 
         var parentDir = GetParentDirectory(fullPath);
         if (parentDir is not null)
+        {
             EnsureDirectoryExists(parentDir);
+        }
 
         return Flow.Create<ReadOnlyMemory<byte>>()
             .Select(mem => ByteString.FromBytes(mem.ToArray()))
@@ -133,11 +153,15 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
             .MapMaterializedValue(ioTask => ioTask.ContinueWith<BlobWriteResult>(t =>
             {
                 if (t.IsFaulted)
+                {
                     ExceptionDispatchHelper.Rethrow(t.Exception!);
+                }
 
                 var ioResult = t.Result;
                 if (!ioResult.WasSuccessful)
+                {
                     throw ioResult.Error;
+                }
 
                 EnsureConnected();
                 var attrs = _client.GetAttributes(fullPath);
@@ -165,16 +189,20 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
                 : $"{basePath}/{prefix.TrimStart('/')}";
 
             if (_client.Exists(fullPrefix) && _client.GetAttributes(fullPrefix).IsDirectory)
+            {
                 searchPath = fullPrefix;
+            }
             else
             {
                 var parent = GetParentDirectory(fullPrefix);
                 if (parent is not null && _client.Exists(parent))
+                {
                     searchPath = parent;
+                }
             }
         }
 
-        IEnumerable<BlobItem> items = ListRecursive(searchPath)
+        var items = ListRecursive(searchPath)
             .Where(item => item.IsRegularFile || (recursive && item.IsDirectory))
             .Select(item => new BlobItem
             {
@@ -185,10 +213,14 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
             });
 
         if (prefix is not null)
+        {
             items = items.Where(i => i.Path.StartsWith(prefix, StringComparison.Ordinal));
+        }
 
         if (options?.MaxResults is { } max)
+        {
             items = items.Take(max);
+        }
 
         return Source.From(items.ToList());
     }
@@ -197,12 +229,18 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
     {
         foreach (var item in _client.ListDirectory(path))
         {
-            if (item.Name is "." or "..") continue;
+            if (item.Name is "." or "..")
+            {
+                continue;
+            }
+
             yield return item;
             if (item.IsDirectory)
             {
                 foreach (var child in ListRecursive(item.FullName))
+                {
                     yield return child;
+                }
             }
         }
     }
@@ -213,13 +251,20 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
         foreach (var path in paths)
         {
             var fullPath = ToFullPath(path);
-            if (!_client.Exists(fullPath)) continue;
+            if (!_client.Exists(fullPath))
+            {
+                continue;
+            }
 
             var attrs = _client.GetAttributes(fullPath);
             if (attrs.IsDirectory)
+            {
                 _client.DeleteDirectory(fullPath);
+            }
             else
+            {
                 _client.DeleteFile(fullPath);
+            }
         }
         return Task.CompletedTask;
     }
@@ -240,7 +285,10 @@ public sealed class SftpBlobStore : IBlobStore, IDisposable
         var results = paths.Select(path =>
         {
             var fullPath = ToFullPath(path);
-            if (!_client.Exists(fullPath)) return null;
+            if (!_client.Exists(fullPath))
+            {
+                return null;
+            }
 
             var attrs = _client.GetAttributes(fullPath);
             return new BlobItem

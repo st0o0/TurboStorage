@@ -4,9 +4,9 @@
     "net10.0": {
       "FluentFTP": {
         "type": "Direct",
-        "requested": "[51.1.0, )",
-        "resolved": "51.1.0",
-        "contentHash": "Vm3eGvHACns0zsKfCMCZdZSFKYu2ajV/GeRk4vfgy6d5AR+WqSUjaSWbbhkmS01A8OMjZHFLduPH7nxwGvlcpQ=="
+        "requested": "[54.2.0, )",
+        "resolved": "54.2.0",
+        "contentHash": "n+OyaqU80gnOltXo2xBPZklAqbtxJAfl2GfblOIe5OCAk4jr/3zYW9Jf1fG6eR/USZq4AKWQcUMmKE9neSk8og=="
       },
       "Akka": {
         "type": "Transitive",

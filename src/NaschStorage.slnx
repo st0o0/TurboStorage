@@ -1,19 +1,23 @@
 <Solution>
     <Project Path="NaschStorage\NaschStorage.csproj" />
-    <Project Path="NaschStorage.Sftp.IntegrationTests/NaschStorage.Sftp.IntegrationTests.csproj" />
-    <Project Path="NaschStorage.Sftp/NaschStorage.Sftp.csproj" />
     <Project Path="NaschStorage.UnitTests\NaschStorage.UnitTests.csproj" />
-    <Project Path="NaschStorage.Ftp.IntegrationTests/NaschStorage.Ftp.IntegrationTests.csproj" />
-    <Project Path="NaschStorage.Ftp/NaschStorage.Ftp.csproj" />
     <Project Path="NaschStorage.IntegrationTests\NaschStorage.IntegrationTests.csproj" />
     <Folder Name="/Azure/">
         <Project Path="NaschStorage.Azure.Blobs.IntegrationTests/NaschStorage.Azure.Blobs.IntegrationTests.csproj" />
         <Project Path="NaschStorage.Azure.Blobs/NaschStorage.Azure.Blobs.csproj" />
     </Folder>
+    <Folder Name="/Ftp/">
+        <Project Path="NaschStorage.Ftp.IntegrationTests/NaschStorage.Ftp.IntegrationTests.csproj" />
+        <Project Path="NaschStorage.Ftp/NaschStorage.Ftp.csproj" />
+    </Folder>
     <Folder Name="/Items/">
         <File Path="Directory.Build.props" />
         <File Path="Directory.Packages.props" />
         <File Path="global.json" />
+    </Folder>
+    <Folder Name="/Sftp/">
+        <Project Path="NaschStorage.Sftp.IntegrationTests/NaschStorage.Sftp.IntegrationTests.csproj" />
+        <Project Path="NaschStorage.Sftp/NaschStorage.Sftp.csproj" />
     </Folder>
     <Project Path="NaschStorage.Benchmarks\NaschStorage.Benchmarks.csproj" />
 </Solution>

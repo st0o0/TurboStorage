@@ -5,6 +5,7 @@ using Azure;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
+using AzureBlobItem = Azure.Storage.Blobs.Models.BlobItem;
 
 namespace NaschStorage.Azure.Blobs;
 
@@ -143,27 +144,103 @@ public sealed class AzureBlobStore : IBlobStore
 
     public Source<BlobItem, NotUsed> List(ListOptions? options = null)
     {
-        throw new NotImplementedException();
+        EnsureContainer();
+
+        var pages = _containerClient.GetBlobs(
+            prefix: options?.Prefix,
+            traits: BlobTraits.Metadata);
+
+        IEnumerable<BlobItem> items = pages.Select((AzureBlobItem blob) => new BlobItem
+        {
+            Path = blob.Name,
+            Kind = BlobKind.File,
+            Size = blob.Properties.ContentLength,
+            ContentType = blob.Properties.ContentType,
+            ETag = blob.Properties.ETag?.ToString(),
+            ModifiedOn = blob.Properties.LastModified,
+            Properties = blob.Metadata is { Count: > 0 }
+                ? blob.Metadata.ToDictionary(kv => kv.Key, kv => kv.Value)
+                : null,
+        });
+
+        if (options?.MaxResults is { } max)
+            items = items.Take(max);
+
+        return Source.From(items.ToList());
     }
 
     public Task DeleteAsync(IReadOnlyCollection<string> paths, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        EnsureContainer();
+        foreach (var path in paths)
+        {
+            _containerClient.DeleteBlobIfExists(path, cancellationToken: ct);
+        }
+        return Task.CompletedTask;
     }
 
     public Task<IReadOnlyCollection<bool>> ExistsAsync(IReadOnlyCollection<string> paths, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        EnsureContainer();
+        var results = paths
+            .Select(p => _containerClient.GetBlobClient(p).Exists(ct).Value)
+            .ToList();
+        return Task.FromResult<IReadOnlyCollection<bool>>(results);
     }
 
     public Task<IReadOnlyCollection<BlobItem>> GetBlobsAsync(IReadOnlyCollection<string> paths, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        EnsureContainer();
+        var results = paths.Select(path =>
+        {
+            var client = _containerClient.GetBlobClient(path);
+            try
+            {
+                var props = client.GetProperties(cancellationToken: ct).Value;
+                return new BlobItem
+                {
+                    Path = path,
+                    Kind = BlobKind.File,
+                    Size = props.ContentLength,
+                    ContentType = props.ContentType,
+                    ETag = props.ETag.ToString(),
+                    ModifiedOn = props.LastModified,
+                    CreatedOn = props.CreatedOn,
+                    Properties = props.Metadata is { Count: > 0 }
+                        ? props.Metadata.ToDictionary(kv => kv.Key, kv => kv.Value)
+                        : null,
+                };
+            }
+            catch (RequestFailedException ex) when (ex.Status == 404)
+            {
+                return null;
+            }
+        })
+        .OfType<BlobItem>()
+        .ToList();
+        return Task.FromResult<IReadOnlyCollection<BlobItem>>(results);
     }
 
     public Task SetBlobsAsync(IReadOnlyCollection<BlobItem> blobs, CancellationToken ct = default)
     {
-        throw new NotImplementedException();
+        EnsureContainer();
+        foreach (var blob in blobs)
+        {
+            var client = _containerClient.GetBlobClient(blob.Path);
+            if (blob.ContentType is not null)
+            {
+                client.SetHttpHeaders(
+                    new BlobHttpHeaders { ContentType = blob.ContentType },
+                    cancellationToken: ct);
+            }
+            if (blob.Properties is not null)
+            {
+                client.SetMetadata(
+                    new Dictionary<string, string>(blob.Properties),
+                    cancellationToken: ct);
+            }
+        }
+        return Task.CompletedTask;
     }
 }
 

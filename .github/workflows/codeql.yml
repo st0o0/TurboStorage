@@ -2,11 +2,23 @@ name: "CodeQL"
 
 on:
   push:
-    branches: [ "main", feature/*, ]
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+      - LICENSE
   pull_request:
-    branches: [ "main" ]
+    branches: [main]
+    paths-ignore:
+      - "docs/**"
+      - "**.md"
+      - LICENSE
   schedule:
     - cron: '38 2 * * 2'
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   analyze:

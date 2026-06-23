@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<img alt="NaschStorage logo" height="128" src="https://raw.githubusercontent.com/st0o0/NaschStorage/refs/heads/main/docs/logo/logo.svg" width="128"/>
+<img alt="NaschStorage logo" height="128" src="https://raw.githubusercontent.com/Leberkas-org/NaschStorage/refs/heads/main/docs/logo/logo.svg" width="128"/>
 
 **A high-performance blob storage abstraction for .NET built on [Akka.Streams](https://getakka.net/)**
 

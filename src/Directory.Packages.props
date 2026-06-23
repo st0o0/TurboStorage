@@ -5,7 +5,7 @@
   <ItemGroup>
     <PackageVersion Include="Akka.Streams" Version="1.5.69" />
     <PackageVersion Include="Akka.TestKit.Xunit" Version="1.5.69" />
-    <PackageVersion Include="Azure.Storage.Blobs" Version="12.24.0" />
+    <PackageVersion Include="Azure.Storage.Blobs" Version="12.29.0" />
     <PackageVersion Include="Testcontainers" Version="4.4.0" />
     <PackageVersion Include="BenchmarkDotNet" Version="0.15.8" />
     <PackageVersion Include="Microsoft.Testing.Extensions.CodeCoverage" Version="18.5.2" />

@@ -84,18 +84,8 @@ public sealed class AzureBlobStore : IBlobStore
                         var appendClient = _containerClient.GetAppendBlobClient(path);
                         var blobClient = _containerClient.GetBlobClient(path);
 
-                        // Check if blob exists and what type it is
-                        bool existsAsBlockBlob = false;
-                        try
-                        {
-                            var props = blobClient.GetProperties();
-                            // If we get here, blob exists; check type
-                            existsAsBlockBlob = props.Value.BlobType != BlobType.Append;
-                        }
-                        catch (RequestFailedException ex) when (ex.Status == 404)
-                        {
-                            // Blob does not exist; will be created as append blob
-                        }
+                        var existsAsBlockBlob = blobClient.Exists().Value
+                            && blobClient.GetProperties().Value.BlobType != BlobType.Append;
 
                         if (existsAsBlockBlob)
                         {

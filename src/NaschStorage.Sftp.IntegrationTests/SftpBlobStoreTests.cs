@@ -1,41 +1,32 @@
-using Akka.Actor;
 using Akka.Streams;
 using Akka.Streams.Dsl;
+using Akka.TestKit.Xunit;
 using NaschStorage.Sftp;
 
 namespace NaschStorage.Sftp.IntegrationTests;
 
-public sealed class SftpBlobStoreTests : IClassFixture<SftpContainerFixture>, IAsyncLifetime
+public sealed class SftpBlobStoreTests : TestKit, IClassFixture<SftpContainerFixture>
 {
-    private readonly SftpContainerFixture _fixture;
-    private ActorSystem _system = null!;
-    private IMaterializer _materializer = null!;
-    private SftpBlobStore _store = null!;
+    private readonly IMaterializer _materializer;
+    private readonly SftpBlobStore _store;
 
     public SftpBlobStoreTests(SftpContainerFixture fixture)
     {
-        _fixture = fixture;
-    }
-
-    public ValueTask InitializeAsync()
-    {
-        _system = ActorSystem.Create("test");
-        _materializer = _system.Materializer();
+        _materializer = Sys.Materializer();
         _store = new SftpBlobStore(new SftpBlobStoreOptions
         {
-            Host = _fixture.Host,
-            Port = _fixture.Port,
-            Username = _fixture.Username,
-            Password = _fixture.Password,
+            Host = fixture.Host,
+            Port = fixture.Port,
+            Username = fixture.Username,
+            Password = fixture.Password,
             BasePath = "/upload",
         });
-        return ValueTask.CompletedTask;
     }
 
-    public async ValueTask DisposeAsync()
+    protected override void AfterAll()
     {
         _store.Dispose();
-        await _system.Terminate();
+        base.AfterAll();
     }
 
     [Fact]

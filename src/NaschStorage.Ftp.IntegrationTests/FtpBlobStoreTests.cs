@@ -1,41 +1,32 @@
-using Akka.Actor;
 using Akka.Streams;
 using Akka.Streams.Dsl;
+using Akka.TestKit.Xunit;
 using NaschStorage.Ftp;
 
 namespace NaschStorage.Ftp.IntegrationTests;
 
-public sealed class FtpBlobStoreTests : IClassFixture<FtpContainerFixture>, IAsyncLifetime
+public sealed class FtpBlobStoreTests : TestKit, IClassFixture<FtpContainerFixture>
 {
-    private readonly FtpContainerFixture _fixture;
-    private ActorSystem _system = null!;
-    private IMaterializer _materializer = null!;
-    private FtpBlobStore _store = null!;
+    private readonly IMaterializer _materializer;
+    private readonly FtpBlobStore _store;
 
     public FtpBlobStoreTests(FtpContainerFixture fixture)
     {
-        _fixture = fixture;
-    }
-
-    public ValueTask InitializeAsync()
-    {
-        _system = ActorSystem.Create("test");
-        _materializer = _system.Materializer();
+        _materializer = Sys.Materializer();
         _store = new FtpBlobStore(new FtpBlobStoreOptions
         {
-            Host = _fixture.Host,
-            Port = _fixture.Port,
-            Username = _fixture.Username,
-            Password = _fixture.Password,
+            Host = fixture.Host,
+            Port = fixture.Port,
+            Username = fixture.Username,
+            Password = fixture.Password,
             EncryptionMode = FluentFTP.FtpEncryptionMode.None,
         });
-        return ValueTask.CompletedTask;
     }
 
-    public async ValueTask DisposeAsync()
+    protected override void AfterAll()
     {
         _store.Dispose();
-        await _system.Terminate();
+        base.AfterAll();
     }
 
     [Fact]

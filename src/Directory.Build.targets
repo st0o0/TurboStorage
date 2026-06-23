@@ -1,0 +1,7 @@
+<Project>
+    <ItemGroup Condition="'$(IsPackable)' == 'true'">
+        <None Include="../../README.md" Pack="true" Visible="false" PackagePath="\" />
+        <None Include="../../LICENSE" Pack="true" Visible="false" PackagePath="\" />
+        <None Remove="packages.lock.json" />
+    </ItemGroup>
+</Project>

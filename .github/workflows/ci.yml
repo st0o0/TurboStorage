@@ -1,18 +1,16 @@
-name: CI
+name: Build & Test
 
 on:
-  push:
-    branches: [main]
-    paths-ignore:
-      - "docs/**"
-      - "**.md"
-      - LICENSE
   pull_request:
     branches: [main]
     paths-ignore:
       - "docs/**"
       - "**.md"
       - LICENSE
+      - ".github/workflows/docs.yml"
+      - ".github/workflows/commitlint.yml"
+      - ".github/workflows/codeql.yml"
+      - ".github/workflows/release.yml"
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -23,6 +21,9 @@ env:
   SOLUTION_PATH: "./src/NaschStorage.slnx"
   TEST_OUTPUT_DIRECTORY: "${{ github.workspace }}/testresults"
   COVERAGE_REPORT_DIRECTORY: "./coveragereport"
+
+permissions:
+  contents: read
 
 jobs:
   build-and-test:

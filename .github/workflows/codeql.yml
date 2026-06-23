@@ -1,18 +1,24 @@
-name: "CodeQL"
+name: "Security Analysis"
 
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - "docs/**"
-      - "**.md"
-      - LICENSE
+    paths:
+      - "src/**/*.cs"
+      - "src/**/*.csproj"
+      - "src/**/*.sln"
+      - "src/**/*.slnx"
+      - "src/Directory.Build.props"
+      - "src/Directory.Packages.props"
   pull_request:
     branches: [main]
-    paths-ignore:
-      - "docs/**"
-      - "**.md"
-      - LICENSE
+    paths:
+      - "src/**/*.cs"
+      - "src/**/*.csproj"
+      - "src/**/*.sln"
+      - "src/**/*.slnx"
+      - "src/Directory.Build.props"
+      - "src/Directory.Packages.props"
   schedule:
     - cron: '38 2 * * 2'
 
@@ -42,9 +48,17 @@ jobs:
       uses: github/codeql-action/init@v4
       with:
         languages: ${{ matrix.language }}
+        config: |
+          paths-ignore:
+            - docs
 
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v5
+      with:
+        global-json-file: ./src/global.json
+
+    - name: Build
+      run: dotnet build --configuration Release ./src/NaschStorage.slnx
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v4

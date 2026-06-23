@@ -67,7 +67,7 @@ jobs:
 
       - name: Pack
         run: >
-          dotnet pack src/NaschStorage/NaschStorage.csproj
+          dotnet pack ${{ env.SOLUTION_PATH }}
           --configuration Release
           --no-build
           --output ${{ env.PACKAGE_OUTPUT }}
